@@ -61,7 +61,6 @@ func (p *pServer) process(conn net.Conn) {
 		if end > n {
 			end = n
 		}
-		logger.Printf(hexStr[start+20 : start+22])
 
 		if parser.IsProcess(hexStr[start+20 : start+22]) {
 			logger.Printf("status is process and write to db %v", hexStr[start+20:start+22])
@@ -74,7 +73,7 @@ func (p *pServer) process(conn net.Conn) {
 				logger.Printf("insert error %v", err)
 				return
 			}
-		} else if parser.AckFinish(hexStr[start+20 : start+22]) {
+		} else if p.cli.IsFinish() && parser.AckFinish(hexStr[start+20:start+22]) {
 			p.cli.Reset()
 			return
 		} else if parser.IsFine(hexStr[start+20 : start+22]) {
