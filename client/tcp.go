@@ -64,7 +64,7 @@ func NewClient(option *options.Option) Client {
 	}
 	cli, err := net.Dial("tcp", option.Client)
 	if err != nil {
-		logger.Printf("err is %v", err)
+		logger.Printf("err is %v, server is not exists", err)
 		panic(err)
 	}
 

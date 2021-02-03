@@ -56,7 +56,7 @@ func NewMssql(option *options.Option) DBClient {
 		logger.Printf("err is %v", err)
 		panic(err)
 	}
-	logger.Printf("connect to %v success", option.Username)
+	logger.Printf("connect to %v success", fmt.Sprintf(DataSource, option.Username, "202102"))
 	return &driver{
 		db:       db,
 		username: option.Username,
