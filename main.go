@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/layout"
@@ -11,6 +12,10 @@ import (
 	"main/pkg/logger"
 	"main/server"
 )
+
+func init() {
+	os.Setenv("FYNE_FONT", "simkai.ttf")
+}
 
 func main() {
 	myApp := app.New()

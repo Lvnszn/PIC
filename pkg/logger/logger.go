@@ -12,6 +12,8 @@ func Printf(format string, v ...interface{}) {
 		log.Fatal(err)
 	}
 	defer f.Close()
+	st, _ := f.Stat()
+	f.Truncate(st.Size())
 	log.SetOutput(f)
 	log.Printf(format, v...)
 }

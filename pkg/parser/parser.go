@@ -64,9 +64,11 @@ func HexToBool(hex string) bool {
 }
 
 // HexToString .
-func HexToString(hex []byte) string {
+func HexToString(r []byte) string {
+	// r, _ := hex.DecodeString(string(h))
+
 	buf := bytes.Buffer{}
-	for _, v := range hex {
+	for _, v := range r {
 		buf.WriteByte(v)
 	}
 

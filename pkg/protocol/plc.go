@@ -67,7 +67,7 @@ func DecodeMsg(msg []byte) *PLCEntity {
 func (p *PLCEntity) GenSQL() string {
 	time.LoadLocation("Asia/Shanghai")
 	sql := "insert into IPA01 values (DATE, RESULT, PShaft, Model,Index, DATA01, DATA02, DATA03, DATA04, DATA05, DATA06, DATA07, DATA08, DATA09, DATA10, DATA11, DATA12, DATA13, DATA14, DATA16, DATA37, DATA38) " +
-		"values (%q, %v, %q, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v)"
+		"values (%q, %v, %q, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v)"
 	return fmt.Sprintf(
 		sql,
 		time.Now().Format("2006-01-02 15:04:05"),

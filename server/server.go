@@ -64,6 +64,7 @@ func (p *pServer) process(conn net.Conn) {
 			logger.Printf("status is process and write to db %v", hexStr[start+20:start+22])
 			entity := protocol.DecodeMsg(b[start:end])
 			sql := entity.GenSQL()
+			logger.Printf("insert sql is %v", sql)
 			err := p.dbCli.Insert(sql)
 			p.cli.Finish()
 			if err != nil {
