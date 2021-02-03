@@ -17,7 +17,8 @@ type pClient struct {
 type Client interface {
 	Ready()  // 5
 	Finish() // 20
-	Reset()  // 40
+	IsFinish() bool
+	Reset() // 40
 	Close()
 }
 
@@ -46,6 +47,10 @@ func (p *pClient) Ready() {
 
 func (p *pClient) Finish() {
 	p.step = 14
+}
+
+func (p *pClient) IsFinish() bool {
+	return p.step == 14
 }
 
 func (p *pClient) Reset() {

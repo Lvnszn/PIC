@@ -23,6 +23,11 @@ func IdxOfHead(hex string) (int, int) {
 	return 0, 0
 }
 
+// IsFine .
+func IsFine(hex string) bool {
+	return hex == "0"
+}
+
 // IsReady .
 func IsReady(hex byte) bool {
 	return hex == 5

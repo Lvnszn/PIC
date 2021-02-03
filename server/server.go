@@ -31,7 +31,6 @@ func (p *pServer) Run() {
 	}
 	defer listener.Close()
 	for {
-		p.cli.Ready()
 		connection, err := listener.Accept()
 		if err != nil {
 			logger.Printf("Accept 失败: %v", err)
@@ -44,6 +43,10 @@ func (p *pServer) Run() {
 func (p *pServer) process(conn net.Conn) {
 	defer conn.Close()
 	for {
+		if !p.cli.IsFinish() {
+			p.cli.Ready()
+		}
+		logger.Printf("ready times")
 		var b [1024]byte
 		n, err := conn.Read(b[:])
 		if err != nil {
@@ -73,6 +76,9 @@ func (p *pServer) process(conn net.Conn) {
 			}
 		} else if parser.AckFinish(hexStr[start+20 : start+22]) {
 			p.cli.Reset()
+			return
+		} else if parser.IsFine(hexStr[start+20 : start+22]) {
+			p.cli.Ready()
 			return
 		}
 	}

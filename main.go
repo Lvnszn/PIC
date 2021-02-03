@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/layout"
@@ -11,10 +12,21 @@ import (
 	"main/options"
 	"main/pkg/logger"
 	"main/server"
+
+	"github.com/flopp/go-findfont"
 )
 
 func init() {
-	os.Setenv("FYNE_FONT", "simkai.ttf")
+	fontPaths := findfont.List()
+	for _, path := range fontPaths {
+		// fmt.Println(path)
+		//楷体:simkai.ttf
+		//黑体:simhei.ttf
+		if strings.Contains(path, "simkai.ttf") || strings.Contains(path, "simhei.ttf") {
+			os.Setenv("FYNE_FONT", path)
+			break
+		}
+	}
 }
 
 func main() {

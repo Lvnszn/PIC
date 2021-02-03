@@ -49,7 +49,7 @@ func (d *driver) Insert(s string) error {
 // NewMssql .
 func NewMssql(option *options.Option) DBClient {
 	if option.Username == "" {
-		option.Username = "PLASERVERADMIN"
+		option.Username = "ADMIN"
 	}
 	db, err := sql.Open("mssql", fmt.Sprintf(DataSource, option.Username, "202102"))
 	if err != nil {
