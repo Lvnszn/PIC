@@ -7,11 +7,11 @@ import (
 )
 
 // BYTELEN length of bytes
-const BYTELEN = 160
+const BYTELEN = 320
 
 // IdxOfHead .
 func IdxOfHead(hex string) (int, int) {
-	if len(hex) < 160 {
+	if len(hex) < BYTELEN {
 		return 0, 0
 	}
 

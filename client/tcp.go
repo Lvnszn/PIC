@@ -46,15 +46,15 @@ func (p *pClient) Ready() {
 }
 
 func (p *pClient) Finish() {
-	p.step = 14
+	p.step = 20
 }
 
 func (p *pClient) IsFinish() bool {
-	return p.step == 14
+	return p.step == 20
 }
 
 func (p *pClient) Reset() {
-	p.step = 28
+	p.step = 40
 	p.conn.Write([]byte{0, p.status, 0, p.step})
 }
 
