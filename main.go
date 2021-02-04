@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"main/client"
 	"main/options"
-	"main/server"
 )
 
 func main() {
@@ -26,8 +26,7 @@ func main() {
 	}
 
 	log.Printf("%v", o)
-	s := server.NewServer(o)
-	go s.Run()
+	client.NewClient(o)
 
 	g := make(chan os.Signal)
 	signal.Notify(g, syscall.SIGTERM, syscall.SIGINT)
