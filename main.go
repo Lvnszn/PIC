@@ -3,27 +3,15 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"os"
-	"strings"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"main/options"
 	"main/server"
-
-	"github.com/flopp/go-findfont"
 )
-
-func init() {
-	fontPaths := findfont.List()
-	for _, path := range fontPaths {
-		// fmt.Println(path)
-		//楷体:simkai.ttf
-		//黑体:simhei.ttf
-		if strings.Contains(path, "simkai.ttf") || strings.Contains(path, "simhei.ttf") {
-			os.Setenv("FYNE_FONT", path)
-			break
-		}
-	}
-}
 
 func main() {
 	b, err := ioutil.ReadFile("config.json")
@@ -37,6 +25,14 @@ func main() {
 		o.Client = "192.168.0.10:2000"
 	}
 
+	log.Printf("%v", o)
 	s := server.NewServer(o)
-	s.Run()
+	go s.Run()
+
+	g := make(chan os.Signal)
+	signal.Notify(g, syscall.SIGTERM, syscall.SIGINT)
+	sig := <-g
+	log.Printf("caught sig: %+v, process will exit 2 seconds later..", sig)
+	time.Sleep(2 * time.Second)
+	os.Exit(0)
 }
