@@ -12,12 +12,9 @@ import (
 	"main/client"
 	"main/options"
 	"main/pkg/database"
-	"main/pkg/parser"
 )
 
 func main() {
-	a := "41600000"
-	println(parser.HexToFloat32(a))
 	b, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		panic(err)
