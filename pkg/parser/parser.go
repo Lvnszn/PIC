@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"encoding/hex"
 	"math"
 	"strconv"
 )
@@ -16,8 +17,8 @@ func IdxOfHead(hex string) (int, int) {
 	}
 
 	for i := 0; i < len(hex)-1; i++ {
-		if hex[i:i+2] == "23" {
-			return i, i + BYTELEN
+		if hex[i:i+2] == "26" {
+			return i - 4, i - 4 + BYTELEN
 		}
 	}
 	return 0, 0
@@ -25,7 +26,7 @@ func IdxOfHead(hex string) (int, int) {
 
 // IsFine .
 func IsFine(hex string) bool {
-	return hex == "0"
+	return hex == "00"
 }
 
 // IsReady .
@@ -35,17 +36,17 @@ func IsReady(hex byte) bool {
 
 // IsProcess .
 func IsProcess(hex string) bool {
-	return hex == "10"
+	return hex == "0a"
 }
 
 // AckFinish .
 func AckFinish(hex string) bool {
-	return hex == "30"
+	return hex == "1e"
 }
 
 // HexToFloat32 .
 func HexToFloat32(hex string) float32 {
-	n, err := strconv.ParseUint(hex, 16, 32)
+	n, err := strconv.ParseInt(hex, 16, 32)
 	if err != nil {
 		return 0
 	}
@@ -69,8 +70,8 @@ func HexToBool(hex string) bool {
 }
 
 // HexToString .
-func HexToString(r []byte) string {
-	// r, _ := hex.DecodeString(string(h))
+func HexToString(h string) string {
+	r, _ := hex.DecodeString(h)
 
 	buf := bytes.Buffer{}
 	for _, v := range r {

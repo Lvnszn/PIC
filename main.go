@@ -11,9 +11,13 @@ import (
 
 	"main/client"
 	"main/options"
+	"main/pkg/database"
+	"main/pkg/parser"
 )
 
 func main() {
+	a := "41600000"
+	println(parser.HexToFloat32(a))
 	b, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		panic(err)
@@ -24,9 +28,10 @@ func main() {
 	if o.Client == "" {
 		o.Client = "192.168.0.10:2000"
 	}
-
 	log.Printf("%v", o)
-	client.NewClient(o)
+
+	db := database.NewMssql(o)
+	client.NewClient(o, db)
 
 	g := make(chan os.Signal)
 	signal.Notify(g, syscall.SIGTERM, syscall.SIGINT)

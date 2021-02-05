@@ -3,15 +3,16 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"main/options"
 	"main/pkg/logger"
 	"time"
 
-	_ "github.com/denisenkom/go-mssqldb"
+	_ "github.com/alexbrainman/odbc"
 )
 
 // DataSource .
-const DataSource = "sqlserver://%s@192.168.0.10/IPA_%s?sslmode=disable"
+const DataSource = "sqlserver://%s:123456@127.0.0.1/database=IPA_%s"
 
 type driver struct {
 	db       *sql.DB
@@ -29,14 +30,7 @@ func (d *driver) compareAndResetDatabase() {
 	nDbDate := fmt.Sprintf("%v%v", n.Year(), n.Month())
 	if nDbDate != d.dbDate {
 		d.dbDate = nDbDate
-
-		db, err := sql.Open("mssql", fmt.Sprintf(DataSource, d.username, d.dbDate))
-		if err != nil {
-			logger.Printf("init database fail %v", err)
-			return
-		}
-		d.db.Close()
-		d.db = db
+		d.db.Exec(fmt.Sprintf("use IPA_%v", d.dbDate))
 	}
 }
 
@@ -49,14 +43,31 @@ func (d *driver) Insert(s string) error {
 // NewMssql .
 func NewMssql(option *options.Option) DBClient {
 	if option.Username == "" {
-		option.Username = "ADMIN"
+		option.Username = "case"
 	}
-	db, err := sql.Open("mssql", fmt.Sprintf(DataSource, option.Username, "202102"))
+
+	// Create connection pool
+	db, err := sql.Open("odbc", "driver={sql server};server=localhost;port=1433;uid=case;pwd=123456;database=IPA_202102")
 	if err != nil {
 		logger.Printf("err is %v", err)
 		panic(err)
 	}
-	logger.Printf("connect to %v success", fmt.Sprintf(DataSource, option.Username, "202102"))
+
+	var (
+		sqlversion string
+	)
+	rows, err := db.Query("select @@version")
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next() {
+		err := rows.Scan(&sqlversion)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(sqlversion)
+	}
+
 	return &driver{
 		db:       db,
 		username: option.Username,
