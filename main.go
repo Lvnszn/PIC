@@ -22,6 +22,7 @@ func main() {
 	o := &options.Option{}
 	json.Unmarshal(b, &o)
 
+	time.LoadLocation("Aisa/Shanghai")
 	if o.Client == "" {
 		o.Client = "192.168.0.10:2000"
 	}

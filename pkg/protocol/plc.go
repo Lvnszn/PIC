@@ -3,8 +3,8 @@ package protocol
 import (
 	"encoding/hex"
 	"fmt"
-	"main/pkg/logger"
 	"main/pkg/parser"
+	"strings"
 	"time"
 )
 
@@ -61,20 +61,22 @@ func DecodeMsg(msg []byte) *PLCEntity {
 	entity.BeforeMiddleAngle = parser.HexToFloat32(hexStr[284:292])
 	entity.AfterMiddleAngle = parser.HexToFloat32(hexStr[292:300])
 	entity.MiddleAngleLimitMin = parser.HexToFloat32(hexStr[300:308])
-	logger.Printf("decode msg show: %+v", entity)
 	return entity
 }
 
 // GenSQL ret sql
 func (p *PLCEntity) GenSQL() string {
 	time.LoadLocation("Asia/Shanghai")
-	sql := "insert into dbo.IPA01 (DATE, RESULT, PShaft, Model,Index, DATA01, DATA02, DATA03, DATA04, DATA05, DATA06, DATA07, DATA08, DATA09, DATA10, DATA11, DATA12, DATA13, DATA14, DATA16, DATA37, DATA38) " +
-		"values ('%v', %v, '%v', %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v)"
+	n := time.Now()
+	nDbDate := fmt.Sprintf("%v%.2d", n.Year(), int(n.Month()))
+	sql := "insert into IPA_%v.dbo.IPA01 (DATE, RESULT, PShaft, Model, MC_Index, DATA01, DATA02, DATA03, DATA04, DATA05, DATA06, DATA07, DATA08, DATA09, DATA10, DATA11, DATA12, DATA13, DATA14, DATA16, DATA37, DATA38) " +
+		"values ('%v', %v, '%v', '%v', %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v)"
 	return fmt.Sprintf(
 		sql,
+		nDbDate,
 		time.Now().Format("2006-01-02 15:04:05"),
 		p.Result,
-		p.Code2D,
+		strings.TrimSpace(strings.Replace(p.Code2D, " ", "", -1)),
 		p.RecipeCode,
 		p.Index,
 		p.PressResult,

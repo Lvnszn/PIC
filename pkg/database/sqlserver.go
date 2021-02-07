@@ -2,21 +2,15 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"main/options"
 	"main/pkg/logger"
-	"time"
 
 	_ "github.com/alexbrainman/odbc"
 )
 
-// DataSource .
-const DataSource = "sqlserver://%s:123456@127.0.0.1/database=IPA_%s"
-
 type driver struct {
 	db       *sql.DB
-	dbDate   string
 	username string
 }
 
@@ -25,17 +19,7 @@ type DBClient interface {
 	Insert(sql string) error
 }
 
-func (d *driver) compareAndResetDatabase() {
-	n := time.Now()
-	nDbDate := fmt.Sprintf("%v%v", n.Year(), n.Month())
-	if nDbDate != d.dbDate {
-		d.dbDate = nDbDate
-		d.db.Exec(fmt.Sprintf("use IPA_%v", d.dbDate))
-	}
-}
-
 func (d *driver) Insert(s string) error {
-	d.compareAndResetDatabase()
 	_, err := d.db.Exec(s)
 	return err
 }
@@ -67,10 +51,9 @@ func NewMssql(option *options.Option) DBClient {
 		}
 		log.Println(sqlversion)
 	}
-
+	logger.Printf("连接数据库成功...")
 	return &driver{
 		db:       db,
 		username: option.Username,
-		dbDate:   "202102",
 	}
 }
