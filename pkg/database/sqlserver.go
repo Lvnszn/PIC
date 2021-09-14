@@ -31,7 +31,7 @@ func NewMssql(option *options.Option) DBClient {
 	}
 
 	// Create connection pool
-	db, err := sql.Open("odbc", "driver={sql server};server=localhost;port=1433;uid=case;pwd=123456;database=IPA_202102")
+	db, err := sql.Open("odbc", "driver={sql server};server=localhost;port=1433;uid=case1;pwd=abc123;database=IPA_202102")
 	if err != nil {
 		logger.Printf("err is %v", err)
 		panic(err)

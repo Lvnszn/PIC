@@ -1,7 +1,6 @@
 package protocol
 
 import (
-	"encoding/hex"
 	"fmt"
 	"main/pkg/parser"
 	"strings"
@@ -35,8 +34,7 @@ type PLCEntity struct {
 }
 
 // DecodeMsg .
-func DecodeMsg(msg []byte) *PLCEntity {
-	hexStr := hex.EncodeToString(msg)
+func DecodeMsg(hexStr string) *PLCEntity {
 	entity := &PLCEntity{}
 	base := 20
 	entity.Result = parser.HexToInt16(hexStr[base : base+4])

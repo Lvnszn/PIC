@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
 	b, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		panic(err)
