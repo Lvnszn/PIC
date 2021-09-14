@@ -1,10 +1,9 @@
 package protocol
 
 import (
-	"encoding/hex"
 	"fmt"
-	"main/pkg/logger"
 	"main/pkg/parser"
+	"strings"
 	"time"
 )
 
@@ -35,44 +34,47 @@ type PLCEntity struct {
 }
 
 // DecodeMsg .
-func DecodeMsg(msg []byte) *PLCEntity {
+func DecodeMsg(hexStr string) *PLCEntity {
 	entity := &PLCEntity{}
-	entity.Result = parser.HexToInt16(hex.EncodeToString(msg[22:26]))
-	entity.PartName = parser.HexToString(msg[26:50])
-	entity.Code2D = parser.HexToString(msg[50:182])
-	entity.RecipeCode = parser.HexToInt16(hex.EncodeToString(msg[182:186]))
-	entity.Index = parser.HexToInt16(hex.EncodeToString(msg[186:190]))
-	entity.PressResult = parser.HexToInt16(hex.EncodeToString(msg[190:194]))
-	entity.ForceLimitMax = parser.HexToFloat32(hex.EncodeToString(msg[194:202]))
-	entity.ForceMax = parser.HexToFloat32(hex.EncodeToString(msg[202:210]))
-	entity.ForceMin = parser.HexToFloat32(hex.EncodeToString(msg[210:218]))
-	entity.PsoitionResult = parser.HexToInt16(hex.EncodeToString(msg[218:222]))
-	entity.PsoitionLimitMax = parser.HexToFloat32(hex.EncodeToString(msg[222:230]))
-	entity.PsoitionMax = parser.HexToFloat32(hex.EncodeToString(msg[230:238]))
-	entity.PsoitionMin = parser.HexToFloat32(hex.EncodeToString(msg[238:246]))
-	entity.TotalAngleResult = parser.HexToInt16(hex.EncodeToString(msg[246:250]))
-	entity.TotalAngleLimitMax = parser.HexToFloat32(hex.EncodeToString(msg[250:258]))
-	entity.TotalAngle = parser.HexToFloat32(hex.EncodeToString(msg[258:266]))
-	entity.TotalAngleLimitMin = parser.HexToFloat32(hex.EncodeToString(msg[266:274]))
-	entity.MiddleAngleResult = parser.HexToInt16(hex.EncodeToString(msg[274:278]))
-	entity.MiddleAngleLimitMax = parser.HexToFloat32(hex.EncodeToString(msg[278:286]))
-	entity.BeforeMiddleAngle = parser.HexToFloat32(hex.EncodeToString(msg[286:294]))
-	entity.AfterMiddleAngle = parser.HexToFloat32(hex.EncodeToString(msg[294:302]))
-	entity.MiddleAngleLimitMin = parser.HexToFloat32(hex.EncodeToString(msg[302:310]))
-	logger.Printf("decode msg show: %+v", entity)
+	base := 20
+	entity.Result = parser.HexToInt16(hexStr[base : base+4])
+	entity.PartName = parser.HexToString(hexStr[28:38])
+	entity.Code2D = parser.HexToString(hexStr[52:116])
+	entity.RecipeCode = parser.HexToInt16(hexStr[180:184])
+	entity.Index = parser.HexToInt16(hexStr[184:188])
+	entity.PressResult = parser.HexToInt16(hexStr[188:192])
+	entity.ForceLimitMax = parser.HexToFloat32(hexStr[192:200])
+	entity.ForceMax = parser.HexToFloat32(hexStr[200:208])
+	entity.ForceMin = parser.HexToFloat32(hexStr[208:216])
+	entity.PsoitionResult = parser.HexToInt16(hexStr[216:220])
+	entity.PsoitionLimitMax = parser.HexToFloat32(hexStr[220:228])
+	entity.PsoitionMax = parser.HexToFloat32(hexStr[228:236])
+	entity.PsoitionMin = parser.HexToFloat32(hexStr[236:244])
+	entity.TotalAngleResult = parser.HexToInt16(hexStr[244:248])
+	entity.TotalAngleLimitMax = parser.HexToFloat32(hexStr[248:256])
+	entity.TotalAngle = parser.HexToFloat32(hexStr[256:264])
+	entity.TotalAngleLimitMin = parser.HexToFloat32(hexStr[264:272])
+	entity.MiddleAngleResult = parser.HexToInt16(hexStr[272:276])
+	entity.MiddleAngleLimitMax = parser.HexToFloat32(hexStr[276:284])
+	entity.BeforeMiddleAngle = parser.HexToFloat32(hexStr[284:292])
+	entity.AfterMiddleAngle = parser.HexToFloat32(hexStr[292:300])
+	entity.MiddleAngleLimitMin = parser.HexToFloat32(hexStr[300:308])
 	return entity
 }
 
 // GenSQL ret sql
 func (p *PLCEntity) GenSQL() string {
 	time.LoadLocation("Asia/Shanghai")
-	sql := "insert into IPA01 values (DATE, RESULT, PShaft, Model,Index, DATA01, DATA02, DATA03, DATA04, DATA05, DATA06, DATA07, DATA08, DATA09, DATA10, DATA11, DATA12, DATA13, DATA14, DATA16, DATA37, DATA38) " +
-		"values (%q, %v, %q, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v)"
+	n := time.Now()
+	nDbDate := fmt.Sprintf("%v%.2d", n.Year(), int(n.Month()))
+	sql := "insert into IPA_%v.dbo.IPA01 (DATE, RESULT, PShaft, Model, MC_Index, DATA01, DATA02, DATA03, DATA04, DATA05, DATA06, DATA07, DATA08, DATA09, DATA10, DATA11, DATA12, DATA13, DATA14, DATA16, DATA37, DATA38) " +
+		"values ('%v', %v, '%v', '%v', %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v)"
 	return fmt.Sprintf(
 		sql,
+		nDbDate,
 		time.Now().Format("2006-01-02 15:04:05"),
 		p.Result,
-		p.Code2D,
+		strings.TrimSpace(strings.Replace(p.Code2D, " ", "", -1)),
 		p.RecipeCode,
 		p.Index,
 		p.PressResult,
