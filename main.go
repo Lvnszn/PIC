@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"main/pkg/server"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,7 +32,7 @@ func main() {
 
 	db := database.NewMssql(o)
 	client.NewClient(o, db)
-
+	server.NewMSEServe(o.Addr, db)
 	g := make(chan os.Signal)
 	signal.Notify(g, syscall.SIGTERM, syscall.SIGINT)
 	sig := <-g

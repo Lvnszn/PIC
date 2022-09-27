@@ -2,9 +2,11 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"main/options"
 	"main/pkg/logger"
+	"time"
 
 	_ "github.com/alexbrainman/odbc"
 )
@@ -17,6 +19,26 @@ type driver struct {
 // DBClient .
 type DBClient interface {
 	Insert(sql string) error
+	Select(barcode string) (int, error)
+}
+
+func (d *driver) Select(barcode string) (int, error) {
+	time.LoadLocation("Asia/Shanghai")
+	n := time.Now()
+	nDbDate := fmt.Sprintf("%v%.2d", n.Year(), int(n.Month()))
+	s := "select RESULT from IPA_%v.dbo.IPA01 where Model = '%s'"
+	rows, err := d.db.Query(fmt.Sprintf(s, nDbDate, barcode))
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var cnt int
+	err = rows.Scan(&cnt)
+	if err != nil {
+		return 0, err
+	}
+	return cnt, nil
 }
 
 func (d *driver) Insert(s string) error {

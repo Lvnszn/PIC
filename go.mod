@@ -1,13 +1,7 @@
 module main
 
-go 1.14
+go 1.18
 
-require (
-	fyne.io/fyne v1.4.3
-	fyne.io/fyne/v2 v2.0.0 // indirect
-	github.com/alexbrainman/odbc v0.0.0-20200426075526-f0492dfa1575
-	github.com/denisenkom/go-mssqldb v0.9.0
-	github.com/flopp/go-findfont v0.0.0-20201114153133-e7393a00c15b
-	github.com/go-ole/go-ole v1.2.5 // indirect
-	github.com/mattn/go-adodb v0.0.1
-)
+require github.com/alexbrainman/odbc v0.0.0-20211220213544-9c9a2e61c5e2
+
+require golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3 // indirect
