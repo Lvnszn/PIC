@@ -3,12 +3,11 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/alexbrainman/odbc"
 	"log"
 	"main/options"
 	"main/pkg/logger"
 	"time"
-
-	_ "github.com/alexbrainman/odbc"
 )
 
 type driver struct {
@@ -26,19 +25,27 @@ func (d *driver) Select(barcode string) (int, error) {
 	time.LoadLocation("Asia/Shanghai")
 	n := time.Now()
 	nDbDate := fmt.Sprintf("%v%.2d", n.Year(), int(n.Month()))
-	s := "select RESULT from IPA_%v.dbo.IPA01 where Model = '%s'"
-	rows, err := d.db.Query(fmt.Sprintf(s, nDbDate, barcode))
+	s := fmt.Sprintf("select Result from IPA_%v.dbo.IPA01 where PShaft = '%s'", nDbDate, barcode)
+	logger.Printf("sql is %s", s)
+	rows, err := d.db.Query(s)
 	if err != nil {
 		return 0, err
 	}
 	defer rows.Close()
 
-	var cnt int
-	err = rows.Scan(&cnt)
-	if err != nil {
-		return 0, err
+	for rows.Next() {
+		var cnt int64
+		err = rows.Scan(&cnt)
+		if err != nil {
+			logger.Printf("scan err is %v", err)
+			return 0, err
+		}
+
+		logger.Printf("scan result is %v", cnt)
+		return int(cnt), nil
 	}
-	return cnt, nil
+
+	return -1, nil
 }
 
 func (d *driver) Insert(s string) error {

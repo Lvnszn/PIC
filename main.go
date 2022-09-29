@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"main/client"
 	"main/options"
 	"main/pkg/database"
 )
@@ -31,7 +30,7 @@ func main() {
 	log.Printf("%v", o)
 
 	db := database.NewMssql(o)
-	client.NewClient(o, db)
+	//client.NewClient(o, db)
 	server.NewMSEServe(o.Addr, db)
 	g := make(chan os.Signal)
 	signal.Notify(g, syscall.SIGTERM, syscall.SIGINT)

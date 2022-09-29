@@ -1,6 +1,7 @@
 package server
 
 import (
+	"io"
 	"main/pkg/database"
 	"main/pkg/logger"
 	"net"
@@ -20,29 +21,46 @@ func (m *mseHandler) process() {
 			continue
 		}
 		go func() {
-			buf := make([]byte, 256)
-			_, err = conn.Read(buf[:])
-			if err != nil {
-				logger.Printf("read fail %v \n", err)
-				return
-			}
-
-			req := string(buf)
-			if strings.Contains(req, "barcode#") {
-				v := strings.Replace(req, "barcode#", "", -1)
-				cnt, err := m.db.Select(v)
+			defer func() {
+				conn.Close()
+				err := recover()
 				if err != nil {
+					logger.Printf("err is %v", err)
+				}
+			}()
+
+			for {
+				buf := make([]byte, 256)
+				n, err := conn.Read(buf[:])
+				if err != nil {
+					if err == io.EOF {
+						continue
+					}
+					logger.Printf("read fail %v \n", err)
 					return
 				}
-				if cnt == 0 {
-					conn.Write([]byte("permit#NO"))
-					return
-				} else if cnt > 0 {
-					conn.Write([]byte("permit#OK"))
-					return
-				} else {
-					conn.Write([]byte("permit#NG"))
-					return
+
+				req := string(buf[:n])
+				logger.Printf("recive data is %s", req)
+				if strings.Contains(req, "barcode#") {
+					v := strings.Replace(req, "barcode#", "", -1)
+					cnt, err := m.db.Select(v)
+					if err != nil {
+						logger.Printf("query from db err %v", err)
+						return
+					}
+
+					logger.Printf("result is %v", cnt)
+					if cnt == -1 {
+						_, err = conn.Write([]byte("permit#NO"))
+					} else if cnt == 1 {
+						_, err = conn.Write([]byte("permit#OK"))
+					} else {
+						_, err = conn.Write([]byte("permit#NG"))
+					}
+					if err != nil {
+						logger.Printf("write back err %v", err)
+					}
 				}
 			}
 		}()
@@ -52,7 +70,8 @@ func (m *mseHandler) process() {
 func NewMSEServe(addr string, db database.DBClient) {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic(err)
+		logger.Printf("listen fail %v", err)
+		return
 	}
 
 	handler := &mseHandler{}
