@@ -2,11 +2,10 @@ package database
 
 import (
 	"database/sql"
+	_ "github.com/microsoft/go-mssqldb"
 	"log"
 	"main/options"
 	"main/pkg/logger"
-
-	_ "github.com/alexbrainman/odbc"
 )
 
 type driver struct {
@@ -30,13 +29,13 @@ func NewMssql(option *options.Option) DBClient {
 		option.Username = "case"
 	}
 
+	dsn := "server=localhost;port=1433;user id=case1;password=abc123;database=IPA_202309"
 	// Create connection pool
-	db, err := sql.Open("odbc", "driver={sql server};server=localhost;port=1433;uid=case1;pwd=abc123;database=IPA_202102")
+	db, err := sql.Open("mssql", dsn)
 	if err != nil {
-		logger.Printf("err is %v", err)
+		log.Println("connect to sqlserver fault", err)
 		panic(err)
 	}
-
 	var (
 		sqlversion string
 	)
