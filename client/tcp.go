@@ -37,7 +37,7 @@ func (p *pClient) isContinue() bool {
 }
 
 func (p *pClient) heartBeat() {
-	t := time.NewTicker(400*time.Millisecond)
+	t := time.NewTicker(400 * time.Millisecond)
 	for {
 		select {
 		case <-t.C:
@@ -57,7 +57,7 @@ func (p *pClient) heartBeat() {
 }
 
 func (p *pClient) consume() {
-	t := time.NewTicker(400*time.Millisecond)
+	t := time.NewTicker(400 * time.Millisecond)
 	for {
 		select {
 		case <-t.C:
@@ -144,7 +144,7 @@ func (p *pClient) process() {
 
 	if !p.IsFinish() && parser.IsProcess(hexStr[start+18:start+20]) {
 		log.Printf("获取数据成功，正在处理...")
-		log.Printf("hex string is %s",  hexStr[start:end])
+		log.Printf("hex string is %s", hexStr[start:end])
 		entity := protocol.DecodeMsg(hexStr[start:end])
 		log.Printf("decode entity is %+v", entity)
 		sql := entity.GenSQL()
@@ -171,6 +171,7 @@ func NewClient(option *options.Option, db database.DBClient) Client {
 	cli, err := net.Dial("tcp", option.Client)
 	if err != nil {
 		log.Printf("err is %v, server is not exists", err)
+		time.Sleep(5 * time.Second)
 		panic(err)
 	}
 
