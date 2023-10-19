@@ -33,7 +33,7 @@ func NewMssql(option *options.Option) DBClient {
 	// Create connection pool
 	db, err := sql.Open("mssql", dsn)
 	if err != nil {
-		log.Println("connect to sqlserver fault", err)
+		logger.Info("connect to sqlserver fault", err)
 		panic(err)
 	}
 	var (
@@ -41,7 +41,7 @@ func NewMssql(option *options.Option) DBClient {
 	)
 	rows, err := db.Query("select @@version")
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 	for rows.Next() {
 		err := rows.Scan(&sqlversion)
@@ -50,7 +50,7 @@ func NewMssql(option *options.Option) DBClient {
 		}
 		log.Println(sqlversion)
 	}
-	logger.Printf("连接数据库成功...")
+	logger.Info("连接数据库成功...")
 	return &driver{
 		db:       db,
 		username: option.Username,

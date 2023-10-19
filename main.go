@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
+	"main/pkg/logger"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,14 +15,7 @@ import (
 )
 
 func init() {
-	file := "./" + "message" + ".log"
-	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
-	if err != nil {
-		panic(err)
-	}
-	log.SetOutput(logFile) // 将文件设置为log输出的文件
-	log.SetPrefix("[PLC]")
-	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
+	logger.Init("", "debug", "PIC")
 	return
 }
 
@@ -38,7 +31,7 @@ func main() {
 	if o.Client == "" {
 		o.Client = "192.168.0.10:2000"
 	}
-	log.Printf("%v", o)
+	logger.Infof("%+v", o)
 
 	db := database.NewMssql(o)
 	client.NewClient(o, db)
@@ -46,7 +39,7 @@ func main() {
 	g := make(chan os.Signal)
 	signal.Notify(g, syscall.SIGTERM, syscall.SIGINT)
 	sig := <-g
-	log.Printf("caught sig: %+v, process will exit 2 seconds later..", sig)
+	logger.Infof("caught sig: %+v, process will exit 2 seconds later..", sig)
 	time.Sleep(2 * time.Second)
 	os.Exit(0)
 }

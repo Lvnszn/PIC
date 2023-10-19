@@ -3,9 +3,9 @@ package client
 import (
 	"encoding/hex"
 	"io"
-	"log"
 	"main/options"
 	"main/pkg/database"
+	"main/pkg/logger"
 	"main/pkg/parser"
 	"main/pkg/protocol"
 	"net"
@@ -30,9 +30,9 @@ type Client interface {
 func (p *pClient) isContinue() bool {
 	time.LoadLocation("Aisa/Shanghai")
 	now := time.Now()
-	log.Printf("now date is %v", now)
+	logger.Infof("now date is %v", now)
 	dd, _ := time.Parse("2006-01-02 15:04:05", p.date)
-	log.Printf("last date is %v", dd)
+	logger.Infof("last date is %v", dd)
 	return now.After(dd)
 }
 
@@ -42,7 +42,7 @@ func (p *pClient) heartBeat() {
 		select {
 		case <-t.C:
 			if p.isContinue() {
-				log.Printf("%v is continue...", time.Now())
+				logger.Infof("%v is continue...", time.Now())
 				continue
 			}
 
@@ -62,7 +62,7 @@ func (p *pClient) consume() {
 		select {
 		case <-t.C:
 			if p.isContinue() {
-				log.Printf("%v is continue...", time.Now())
+				logger.Infof("%v is continue...", time.Now())
 				continue
 			}
 
@@ -120,14 +120,14 @@ func (p *pClient) process() {
 	if !p.IsFinish() {
 		p.Ready()
 	}
-	log.Printf("step is %v", p.StepToString())
+	logger.Infof("step is %v", p.StepToString())
 	var b [1024]byte
 	n, err := p.conn.Read(b[:])
 	if err != nil {
 		if err != io.EOF {
 			p.conn, _ = net.Dial("tcp", p.clientMeta)
 		}
-		log.Printf("read fail: %v", err)
+		logger.Infof("read fail: %v", err)
 		return
 	}
 
@@ -143,20 +143,20 @@ func (p *pClient) process() {
 	}
 
 	if !p.IsFinish() && parser.IsProcess(hexStr[start+18:start+20]) {
-		log.Printf("获取数据成功，正在处理...")
-		log.Printf("hex string is %s", hexStr[start:end])
+		logger.Infof("获取数据成功，正在处理...")
+		logger.Infof("hex string is %s", hexStr[start:end])
 		entity := protocol.DecodeMsg(hexStr[start:end])
-		log.Printf("decode entity is %+v", entity)
+		logger.Infof("decode entity is %+v", entity)
 		sql := entity.GenSQL()
 		err := p.dbCli.Insert(sql)
 		if err != nil {
-			log.Printf("insert error %v", err)
+			logger.Infof("insert error %v", err)
 			return
 		}
 		p.Finish()
-		log.Printf("写入数据成功", p.StepToString())
+		logger.Infof("写入数据成功", p.StepToString())
 	} else if p.IsFinish() && parser.AckFinish(hexStr[start+18:start+20]) {
-		log.Printf("接收到确认写入成功的信息，状态重置")
+		logger.Infof("接收到确认写入成功的信息，状态重置")
 		p.Reset()
 	} else if parser.IsFine(hexStr[start+18 : start+20]) {
 		p.Ready()
@@ -170,7 +170,7 @@ func NewClient(option *options.Option, db database.DBClient) Client {
 	}
 	cli, err := net.Dial("tcp", option.Client)
 	if err != nil {
-		log.Printf("err is %v, server is not exists", err)
+		logger.Infof("err is %v, server is not exists", err)
 		time.Sleep(5 * time.Second)
 		panic(err)
 	}
@@ -181,9 +181,9 @@ func NewClient(option *options.Option, db database.DBClient) Client {
 		clientMeta: option.Client,
 		date:       option.Date,
 	}
-	log.Printf("开始发送心跳")
+	logger.Info("开始发送心跳")
 	go p.heartBeat()
-	log.Printf("开始接收PLC的数据")
+	logger.Info("开始接收PLC的数据")
 	go p.consume()
 	return p
 }
